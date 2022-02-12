@@ -11,6 +11,11 @@ def invalid_sk_number(self, context):
     self.layout.label(text='Invalid number of Shape Keys')
 
 
+def set_keyframe(fcu, frame, val):
+    kf = fcu.keyframe_points.insert(frame, val, options={'FAST'})
+    kf.interpolation = 'LINEAR'
+
+
 def create_action(mesh_obj, dma_act, fps):
     current_time = 0.0
     act = bpy.data.actions.new('action')
@@ -19,9 +24,9 @@ def create_action(mesh_obj, dma_act, fps):
         fcu = act.fcurves.new(data_path=('key_blocks["%s"].value' % target_name), index=0)
         current_time = 0.0
         for dmf in dmt.frames:
-            fcu.keyframe_points.insert(current_time * fps, dmf.start_val, options={'FAST'})
+            set_keyframe(fcu, current_time * fps, dmf.start_val)
             current_time += dmf.duration
-        fcu.keyframe_points.insert(current_time * fps, dmt.frames[-1].end_val, options={'FAST'})
+        set_keyframe(fcu, current_time * fps, dmt.frames[-1].end_val)
     return act, current_time * fps
 
 

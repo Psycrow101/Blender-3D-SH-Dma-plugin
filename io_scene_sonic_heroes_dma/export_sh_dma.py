@@ -6,6 +6,10 @@ def invalid_active_object(self, context):
     self.layout.label(text='You need to select the mesh to export animation')
 
 
+def missing_shape_keys(self, context):
+    self.layout.label(text='No shape keys for active mesh data. Nothing to export')
+
+
 def missing_action(self, context):
     self.layout.label(text='No action for active mesh data. Nothing to export')
 
@@ -36,8 +40,13 @@ def save(context, filepath, fps):
         context.window_manager.popup_menu(invalid_active_object, title='Error', icon='ERROR')
         return {'CANCELLED'}
 
+    shape_keys = mesh_obj.data.shape_keys
+    if not shape_keys:
+        context.window_manager.popup_menu(missing_shape_keys, title='Error', icon='ERROR')
+        return {'CANCELLED'}
+
     act = None
-    animation_data = mesh_obj.data.shape_keys.animation_data
+    animation_data = shape_keys.animation_data
     if animation_data:
         act = animation_data.action
 
@@ -45,11 +54,7 @@ def save(context, filepath, fps):
         context.window_manager.popup_menu(missing_action, title='Error', icon='ERROR')
         return {'CANCELLED'}
 
-    targets = None
-    shape_keys = mesh_obj.data.shape_keys
-    if shape_keys:
-        targets = [DMATarget([]) for kb in mesh_obj.data.shape_keys.key_blocks if kb.name != 'Basis']
-
+    targets = [DMATarget([]) for kb in shape_keys.key_blocks if kb.name != 'Basis']
     if not targets:
         context.window_manager.popup_menu(missing_key_blocks, title='Error', icon='ERROR')
         return {'CANCELLED'}
