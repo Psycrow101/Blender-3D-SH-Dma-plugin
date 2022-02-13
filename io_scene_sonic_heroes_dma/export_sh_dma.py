@@ -1,5 +1,5 @@
 import bpy
-from . dma import DMA, DMAChunk, DMAction, DMATarget, DMAFrame, DMA_CHUNK_ID, DMA_CHUNK_VERSION, DMA_ANIM_VERSION
+from . dma import DMA, DMAChunk, DMAction, DMATarget, DMAFrame, DMA_CHUNK_ID, DMA_ANIM_VERSION
 
 
 def invalid_active_object(self, context):
@@ -34,7 +34,7 @@ def create_dma_action(act, targets, fps):
     return DMAction(DMA_ANIM_VERSION, 0, targets)
 
 
-def save(context, filepath, fps):
+def save(context, filepath, export_version, fps):
     mesh_obj = context.view_layer.objects.active
     if not mesh_obj or type(mesh_obj.data) != bpy.types.Mesh:
         context.window_manager.popup_menu(invalid_active_object, title='Error', icon='ERROR')
@@ -60,7 +60,7 @@ def save(context, filepath, fps):
         return {'CANCELLED'}
 
     dma_act = create_dma_action(act, targets, fps)
-    dma = DMA([DMAChunk(DMA_CHUNK_ID, DMA_CHUNK_VERSION, dma_act)])
+    dma = DMA([DMAChunk(DMA_CHUNK_ID, export_version, dma_act)])
     dma.save(filepath)
 
     return {'FINISHED'}

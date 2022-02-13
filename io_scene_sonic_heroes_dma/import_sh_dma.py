@@ -44,6 +44,7 @@ def load(context, filepath, *, fps):
     if not animation_data:
         animation_data = mesh_obj.data.shape_keys.animation_data_create()
 
+    context.scene.frame_start = 0
     for chunk in dma.chunks:
         if len(mesh_obj.data.shape_keys.key_blocks) != len(chunk.action.targets) + 1:
             context.window_manager.popup_menu(invalid_sk_number, title='Error', icon='ERROR')
@@ -51,9 +52,8 @@ def load(context, filepath, *, fps):
 
         act, act_duration = create_action(mesh_obj, chunk.action, fps)
         act.name = path.basename(filepath)
+        act['dragonff_rw_version'] = chunk.version
         animation_data.action = act
-
-    context.scene.frame_start = 0
-    context.scene.frame_end = act_duration
+        context.scene.frame_end = act_duration
 
     return {'FINISHED'}
