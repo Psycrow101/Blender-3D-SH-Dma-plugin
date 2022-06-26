@@ -54,6 +54,6 @@ def load(context, filepath, *, fps):
         act.name = path.basename(filepath)
         act['dragonff_rw_version'] = chunk.version
         animation_data.action = act
-        context.scene.frame_end = act_duration
+        context.scene.frame_end = int(act_duration)
 
     return {'FINISHED'}

@@ -28,6 +28,9 @@ def create_dma_action(act, targets, fps):
             next_time, next_val = keyframes[next_frame]
             duration = (next_time - time) / fps
 
+            if next_frame > keyframes_num - 2:
+                next_frame = 0
+
             dmf = DMAFrame(val, next_val, duration, 1.0 / duration, next_frame)
             targets[target_index].frames.append(dmf)
 
