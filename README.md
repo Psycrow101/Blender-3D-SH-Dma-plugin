@@ -13,4 +13,4 @@ Poorly tested. Work in progress.
 ## Requirements
 
 * Blender 3D (2.81 and higher)
-* [DragonFF (fork)](https://github.com/Psycrow101/DragonFF/tree/delta_morph)
+* [DragonFF](https://github.com/Parik27/DragonFF)
