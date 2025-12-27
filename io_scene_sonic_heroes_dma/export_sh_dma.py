@@ -1,4 +1,5 @@
 import bpy
+from bpy_extras import anim_utils
 from . dma import DMA, DMAChunk, DMAction, DMATarget, DMAFrame, DMA_CHUNK_ID, DMA_ANIM_VERSION
 
 
@@ -18,8 +19,18 @@ def missing_key_blocks(self, context):
     self.layout.label(text='No key blocks for active mesh data. Nothing to export')
 
 
-def create_dma_action(act, targets, fps):
-    for target_index, kf in enumerate(act.fcurves):
+def create_dma_action(animation_data, targets, fps):
+    act = animation_data.action
+
+    if bpy.app.version < (4, 4, 0):
+        action_fcurves = act.fcurves
+
+    else:
+        action_slot = animation_data.action_slot
+        channelbag = anim_utils.action_get_channelbag_for_slot(act, action_slot)
+        action_fcurves = channelbag.fcurves
+
+    for target_index, kf in enumerate(action_fcurves):
         keyframes = sorted([kp.co for kp in kf.keyframe_points])
         keyframes_num = len(keyframes)
 
@@ -62,7 +73,7 @@ def save(context, filepath, export_version, fps):
         context.window_manager.popup_menu(missing_key_blocks, title='Error', icon='ERROR')
         return {'CANCELLED'}
 
-    dma_act = create_dma_action(act, targets, fps)
+    dma_act = create_dma_action(animation_data, targets, fps)
     dma = DMA([DMAChunk(DMA_CHUNK_ID, export_version, dma_act)])
     dma.save(filepath)
 

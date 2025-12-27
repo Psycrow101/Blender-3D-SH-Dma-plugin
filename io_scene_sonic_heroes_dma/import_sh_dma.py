@@ -19,9 +19,22 @@ def set_keyframe(fcu, frame, val):
 def create_action(mesh_obj, dma_act, fps):
     current_time = 0.0
     act = bpy.data.actions.new('action')
+
+    if bpy.app.version < (4, 4, 0):
+        action_fcurves = act.fcurves
+
+    else:
+        slot = act.slots.new(id_type='KEY', name='DeltaMorph')
+
+        layer = act.layers.new('DeltaMorph')
+        strip = layer.strips.new(type='KEYFRAME')
+        channelbag = strip.channelbag(slot, ensure=True)
+
+        action_fcurves = channelbag.fcurves
+
     for t, dmt in enumerate(dma_act.targets):
         target_name = mesh_obj.data.shape_keys.key_blocks[t + 1].name
-        fcu = act.fcurves.new(data_path=('key_blocks["%s"].value' % target_name), index=0)
+        fcu = action_fcurves.new(data_path=('key_blocks["%s"].value' % target_name), index=0)
         current_time = 0.0
         for dmf in dmt.frames:
             set_keyframe(fcu, current_time * fps, dmf.start_val)
@@ -54,6 +67,8 @@ def load(context, filepath, *, fps):
         act.name = path.basename(filepath)
         act['dragonff_rw_version'] = chunk.version
         animation_data.action = act
+        if bpy.app.version >= (4, 4, 0):
+            animation_data.action_slot = act.slots[-1]
         context.scene.frame_end = int(act_duration)
 
     return {'FINISHED'}
